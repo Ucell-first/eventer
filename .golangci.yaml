@@ -1,0 +1,159 @@
+# Updated config for golangci-lint v2.x
+version: 2
+run:
+  timeout: 3m
+linters-settings:
+  cyclop:
+    max-complexity: 30
+    package-average: 10.0
+  errcheck:
+    check-type-assertions: true
+  funlen:
+    lines: 150
+    statements: 80
+    ignore-comments: true
+  gocognit:
+    min-complexity: 20
+  gocritic:
+    settings:
+      captLocal:
+        paramsOnly: false
+      underef:
+        skipRecvDeref: false
+  mnd:
+    ignored-functions:
+      - flag.Arg
+      - flag.Duration.*
+      - flag.Float.*
+      - flag.Int.*
+      - flag.Uint.*
+      - os.Chmod
+      - os.Mkdir.*
+      - os.OpenFile
+      - os.WriteFile
+  govet:
+    enable-all: true
+    disable:
+      - fieldalignment
+    settings:
+      shadow:
+        strict: true
+  nakedret:
+    max-func-lines: 0
+  nolintlint:
+    allow-no-explanation: [funlen, gocognit, lll]
+    require-explanation: true
+    require-specific: true
+  revive:
+    rules:
+      - name: exported-type
+      - name: exported-function
+      - name: var-naming
+      - name: package-comments
+        disabled: true
+      - name: exported-var
+      - name: unexported-naming
+      - name: error-return
+      - name: error-naming
+      - name: if-return
+      - name: var-declaration
+      - name: range
+      - name: receiver-naming
+      - name: time-naming
+      - name: indent-error-flow
+      - name: errorf
+      - name: empty-block
+      - name: superfluous-else
+      - name: unused-parameter
+      - name: unreachable-code
+      - name: redefines-builtin-id
+  lll:
+    line-length: 200
+  dupl:
+    threshold: 150
+  gomodguard:
+    blocked:
+      modules:
+        - github.com/golang/protobuf:
+            recommendations:
+              - google.golang.org/protobuf
+            reason: "see https://developers.google.com/protocol-buffers/docs/reference/go/faq#modules"
+        - github.com/satori/go.uuid:
+            recommendations:
+              - github.com/google/uuid
+            reason: "satori's package is not maintained"
+linters:
+  disable-all: true
+  enable:
+    # Muhim xatoliklarni topuvchi linterlar
+    - errcheck      # Error handling
+    - govet         # Go vet checks
+    - ineffassign   # Unused assignments
+    - staticcheck   # Advanced static analysis
+    - unused        # Unused variables/functions
+    - gosec         # Security issues
+    - bodyclose     # HTTP response body close
+    - rowserrcheck  # SQL rows.Err() check
+    - sqlclosecheck # SQL close check
+
+    # Performance va bug linterlar
+    - gocritic      # Go critic checks
+    - gocognit      # Cognitive complexity
+    - cyclop        # Cyclomatic complexity
+    - durationcheck # Duration usage check
+    - errorlint     # Error wrapping
+    - nilerr        # Nil error checks
+    - nilnil        # Nil comparisons
+
+    # Code quality (muhim)
+    - dupl          # Code duplication (faqat katta duplicate lar)
+    - goconst       # Repeated strings
+    - unconvert     # Unnecessary conversions
+    - unparam       # Unused parameters
+    - wastedassign  # Wasted assignments
+
+    # Bu linterlarni o'chirdim (style/formatting):
+    # - revive        # Code style
+    # - funlen        # Function length
+    # - godot         # Comment punctuation
+    # - lll           # Line length
+    # - whitespace    # Whitespace issues
+    # - asciicheck    # ASCII characters
+    # - gochecknoglobals # Global variables
+    # - gochecknoinits   # Init functions
+    # - nestif        # Nested if statements
+    # - nakedret      # Naked returns
+    # - nolintlint    # Nolint comments
+    # - mnd           # Magic numbers
+issues:
+  max-same-issues: 50
+  exclude-rules:
+    - source: "(noinspection|TODO)"
+      linters: [godot]
+    - source: "//noinspection"
+      linters: [gocritic]
+    - path: "_test\\.go"
+      linters:
+        - bodyclose
+        - dupl
+        - funlen
+        - goconst
+        - gosec
+        - noctx
+    # Repository fayllarda funlen ni o'chirish
+    - path: "storage/.*\\.go"
+      linters: [funlen]
+    - path: "repository/.*\\.go"
+      linters: [funlen]
+    # Package comment xatolarini o'chirish uchun turli xil variantlar
+    - text: "should have a package comment"
+      linters: [revive]
+    - text: "package-comments"
+      linters: [revive]
+    - linters: [revive]
+      text: ".*should have a package comment.*"
+  exclude-dirs:
+    - vendor
+    - node_modules
+    - test
+    - generated
