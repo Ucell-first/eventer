@@ -1,28 +1,21 @@
 package logs
 
 import (
+	"log"
+	"log/slog"
 	"os"
-
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 )
 
-var Logger *zap.SugaredLogger
-
-func InitLogger() {
-	// cfg := zap.NewProductionConfig()
-	logFile, err := os.OpenFile("app.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
-	if err != nil {
-		panic("Couldn't open Log file: " + err.Error())
+func NewLogger() *slog.Logger {
+	opts := slog.HandlerOptions{
+		Level: slog.LevelDebug,
 	}
-	writeSyncer := zapcore.AddSync(logFile)
-	encoderConfig := zap.NewProductionEncoderConfig()
-	encoderConfig.TimeKey = "time"
-	encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
-	encoder := zapcore.NewJSONEncoder(encoderConfig)
 
-	core := zapcore.NewCore(encoder, writeSyncer, zapcore.InfoLevel)
-	logger := zap.New(core, zap.AddCaller(), zap.AddCallerSkip(1))
+	file, err := os.OpenFile("app.log", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666)
+	if err != nil {
+		log.Fatal("Log file ochishda xatolik", err)
+	}
 
-	Logger = logger.Sugar()
+	logger := slog.New(slog.NewTextHandler(file, &opts))
+	return logger
 }

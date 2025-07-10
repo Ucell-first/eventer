@@ -3,11 +3,11 @@ package clickhouse
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net"
 	"time"
 
 	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
-	"go.uber.org/zap"
 )
 
 type LogEntry struct {
@@ -21,7 +21,7 @@ type LogEntry struct {
 
 type LogRepository struct {
 	Conn driver.Conn
-	Log  *zap.SugaredLogger
+	Log  *slog.Logger
 }
 
 func NewLogRepository(conn driver.Conn) *LogRepository {
@@ -113,7 +113,7 @@ func (r *LogRepository) GetLogs(ctx context.Context, limit int, offset int) ([]L
 
 	defer func() {
 		if err := rows.Close(); err != nil {
-			r.Log.Errorf("error while closing rows: %v", err)
+			r.Log.Error(fmt.Sprintf("error while closing rows: %v", err))
 		}
 	}()
 
@@ -153,9 +153,10 @@ func (r *LogRepository) GetLogsByMethod(ctx context.Context, method string, limi
 	if err != nil {
 		return nil, fmt.Errorf("failed to query logs by method: %w", err)
 	}
+
 	defer func() {
 		if err := rows.Close(); err != nil {
-			r.Log.Errorf("error while closing rows: %v", err)
+			r.Log.Error(fmt.Sprintf("error while closing rows: %v", err))
 		}
 	}()
 
