@@ -1,34 +1,36 @@
-# Created by https://www.toptal.com/developers/gitignore/api/go,linux,macos,visualstudio,visualstudiocode,git
-# Edit at https://www.toptal.com/developers/gitignore?templates=go,linux,macos,visualstudio,visualstudiocode,git
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+/bin/
+/dist/
 
-### Git ###
-# Created by git for backups. To disable backups in Git:
-# $ git config --global mergetool.keepBackup false
-*.orig
+# Go
+*.out
+go.work
+go.work.sum
 
-# Created by git when using merge tools for conflicts
-*.BACKUP.*
-*.BASE.*
-*.LOCAL.*
-*.REMOTE.*
-*_BACKUP_*.txt
-*_BASE_*.txt
-*_LOCAL_*.txt
-*_REMOTE_*.txt
+# Environment
+.env
+.env.local
+.env.*.local
 
-# IDE files
-.idea/
-*.iml
+# IDE
 .vscode/
+.idea/
+*.swp
+*.swo
 
-# OS files
+# OS
 .DS_Store
 Thumbs.db
+
+# Logs
+*.log
+/logs/
 
 # Dependencies
 node_modules/
 vendor/
-
-# Build files
-dist/
-build/
