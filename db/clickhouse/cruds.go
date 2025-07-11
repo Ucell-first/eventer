@@ -24,8 +24,8 @@ type LogRepository struct {
 	Log  *slog.Logger
 }
 
-func NewLogRepository(conn driver.Conn) *LogRepository {
-	return &LogRepository{Conn: conn}
+func NewLogRepository(conn driver.Conn, log *slog.Logger) *LogRepository {
+	return &LogRepository{Conn: conn, Log: log}
 }
 
 func (r *LogRepository) CreateTable(ctx context.Context) error {
