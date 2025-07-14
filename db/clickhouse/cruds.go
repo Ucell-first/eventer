@@ -3,28 +3,20 @@ package clickhouse
 import (
 	"context"
 	"fmt"
+	"log-processor/db/repo"
+	"log-processor/model"
 	"log/slog"
-	"net"
 	"time"
 
 	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
 )
-
-type LogEntry struct {
-	Timestamp time.Time `ch:"timestamp"`
-	Method    string    `ch:"method"`
-	Path      string    `ch:"path"`
-	Status    uint16    `ch:"status"`
-	LatencyMs uint32    `ch:"latency_ms"`
-	IP        net.IP    `ch:"ip"`
-}
 
 type LogRepository struct {
 	Conn driver.Conn
 	Log  *slog.Logger
 }
 
-func NewLogRepository(conn driver.Conn, log *slog.Logger) *LogRepository {
+func NewLogRepository(conn driver.Conn, log *slog.Logger) repo.IClickHouseCrudStorage {
 	return &LogRepository{Conn: conn, Log: log}
 }
 
@@ -48,7 +40,7 @@ func (r *LogRepository) CreateTable(ctx context.Context) error {
 	return nil
 }
 
-func (r *LogRepository) InsertLog(ctx context.Context, log *LogEntry) error {
+func (r *LogRepository) InsertLog(ctx context.Context, log *model.LogEntry) error {
 	query := `
 		INSERT INTO logs (timestamp, method, path, status, latency_ms, ip)
 		VALUES (?, ?, ?, ?, ?, ?)
@@ -68,7 +60,7 @@ func (r *LogRepository) InsertLog(ctx context.Context, log *LogEntry) error {
 	return nil
 }
 
-func (r *LogRepository) InsertLogsBatch(ctx context.Context, logs []LogEntry) error {
+func (r *LogRepository) InsertLogsBatch(ctx context.Context, logs []model.LogEntry) error {
 	if len(logs) == 0 {
 		return nil
 	}
@@ -98,7 +90,7 @@ func (r *LogRepository) InsertLogsBatch(ctx context.Context, logs []LogEntry) er
 	return nil
 }
 
-func (r *LogRepository) GetLogs(ctx context.Context, limit int, offset int) ([]LogEntry, error) {
+func (r *LogRepository) GetLogs(ctx context.Context, limit int, offset int) ([]model.LogEntry, error) {
 	query := `
 		SELECT timestamp, method, path, status, latency_ms, ip
 		FROM logs
@@ -117,9 +109,9 @@ func (r *LogRepository) GetLogs(ctx context.Context, limit int, offset int) ([]L
 		}
 	}()
 
-	var logs []LogEntry
+	var logs []model.LogEntry
 	for rows.Next() {
-		var log LogEntry
+		var log model.LogEntry
 		if err := rows.Scan(
 			&log.Timestamp,
 			&log.Method,
@@ -140,7 +132,7 @@ func (r *LogRepository) GetLogs(ctx context.Context, limit int, offset int) ([]L
 	return logs, nil
 }
 
-func (r *LogRepository) GetLogsByMethod(ctx context.Context, method string, limit int) ([]LogEntry, error) {
+func (r *LogRepository) GetLogsByMethod(ctx context.Context, method string, limit int) ([]model.LogEntry, error) {
 	query := `
 		SELECT timestamp, method, path, status, latency_ms, ip
 		FROM logs
@@ -160,9 +152,9 @@ func (r *LogRepository) GetLogsByMethod(ctx context.Context, method string, limi
 		}
 	}()
 
-	var logs []LogEntry
+	var logs []model.LogEntry
 	for rows.Next() {
-		var log LogEntry
+		var log model.LogEntry
 		if err := rows.Scan(
 			&log.Timestamp,
 			&log.Method,
