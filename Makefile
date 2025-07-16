@@ -53,3 +53,49 @@ help:
 	@echo "  api-stats      - Get stats via API"
 	@echo "  start-all      - Start everything and send test data"
 	@echo "  help           - Show this help"
+
+
+docker-up:
+	docker-compose up -d
+
+docker-stop:
+	docker-compose down
+
+docker-logs:
+	docker-compose logs -f log-processor
+
+test:
+	go run test/producer.go
+
+send-test-logs:
+	@echo "📤 Sending test logs to Kafka..."
+	@echo '{"timestamp":"2025-07-15T10:00:00Z","method":"GET","path":"/api/users","status":200,"latency_ms":45,"ip":"192.168.1.100"}' | docker exec -i kafka-service-kafka-1 kafka-console-producer --topic logs --bootstrap-server localhost:9092
+	@echo '{"timestamp":"2025-07-15T10:01:00Z","method":"POST","path":"/api/users","status":201,"latency_ms":120,"ip":"192.168.1.101"}' | docker exec -i kafka-service-kafka-1 kafka-console-producer --topic logs --bootstrap-server localhost:9092
+	@echo '{"timestamp":"2025-07-15T10:02:00Z","method":"GET","path":"/api/users/1","status":404,"latency_ms":25,"ip":"192.168.1.102"}' | docker exec -i kafka-service-kafka-1 kafka-console-producer --topic logs --bootstrap-server localhost:9092
+	@echo '{"timestamp":"2025-07-15T10:03:00Z","method":"DELETE","path":"/api/users/1","status":500,"latency_ms":1500,"ip":"192.168.1.103"}' | docker exec -i kafka-service-kafka-1 kafka-console-producer --topic logs --bootstrap-server localhost:9092
+	@echo "✅ Test logs sent successfully!"
+
+create-topic:
+	@echo "📋 Creating Kafka topic..."
+	@docker exec kafka-service-kafka-1 kafka-topics --create --topic logs --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 2>&1 | tee /dev/stderr | grep -q "already exists" || true
+
+check-logs:
+	@echo "🔍 Checking logs in ClickHouse..."
+	docker exec kafka-service-clickhouse-1 clickhouse-client --query "SELECT * FROM logs ORDER BY timestamp DESC LIMIT 10"
+
+check-metrics:
+	@echo "📈 Checking Prometheus metrics..."
+	curl -s http://localhost:8081/metrics | grep log_processor
+
+api-logs:
+	@echo "🔍 Getting logs via API..."
+	curl -s http://localhost:8080/api/v1/logs | jq .
+
+start-all: docker-up
+	@echo "⏳ Waiting for services to start..."
+	sleep 10
+	@echo "📋 Creating Kafka topic..."
+	$(MAKE) create-topic
+	@echo "📤 Sending test logs..."
+	$(MAKE) send-test-logs
+	@echo "✅ All services started and test data sent!"

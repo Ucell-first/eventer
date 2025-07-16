@@ -28,7 +28,6 @@ func ConnectionCH() (driver.Conn, error) {
 			"max_execution_time": 60,
 		},
 	})
-
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to ClickHouse: %w", err)
 	}
