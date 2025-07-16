@@ -187,7 +187,8 @@ func (r *LogRepository) GetLogStats(ctx context.Context) (map[string]interface{}
 
 	var stats = make(map[string]interface{})
 	var totalRequests, errorCount uint64
-	var avgLatency, maxLatency float64
+	var avgLatency float64
+	var maxLatency uint32
 	var firstLog, lastLog time.Time
 
 	if err := row.Scan(
