@@ -7,9 +7,8 @@ CURRENT_DIR=$(shell pwd)
 proto-gen:
 	./scripts/gen-proto.sh ${CURRENT_DIR}
 
-.PHONY: run
-run:/Users/nurmuxammad/go/src/github.com/Ucell/auth/.env
-	go run cmd/main.go
+run:
+	go run ./cmd
 
 .PHONY: git
 git:
@@ -44,8 +43,6 @@ docker-stop:
 docker-logs:
 	docker-compose logs -f log-processor
 
-test:
-	go run test/producer.go
 
 send-test-logs:
 	@echo "📤 Sending test logs to Kafka..."
@@ -59,10 +56,13 @@ create-topic:
 	@echo "📋 Creating Kafka topic..."
 	@docker exec kafka-service-kafka-1 kafka-topics --create --topic logs --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 2>&1 | tee /dev/stderr | grep -q "already exists" || true
 
+
 check-logs:
 	@echo "🔍 Checking logs in ClickHouse..."
-	docker exec kafka-service-clickhouse-1 clickhouse-client --query "SELECT * FROM logs ORDER BY timestamp DESC LIMIT 10"
+	docker exec kafka-service-clickhouse-1 clickhouse-client --user $(CLICKHOUSE_USER) --password $(CLICKHOUSE_PASSWORD) --query "SELECT * FROM logs ORDER BY timestamp DESC LIMIT 10"
 
+check-logs-curl:
+	curl -u default:12345 "http://localhost:8123/?query=SELECT%20*%20FROM%20logs%20ORDER%20BY%20timestamp%20DESC%20LIMIT%2010"
 
 start-all: docker-up
 	@echo "⏳ Waiting for services to start..."
@@ -72,3 +72,6 @@ start-all: docker-up
 	@echo "📤 Sending test logs..."
 	$(MAKE) send-test-logs
 	@echo "✅ All services started and test data sent!"
+
+enter-service:
+	docker exec -it kafka-service-log-processor-1 /bin/sh
