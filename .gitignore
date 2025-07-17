@@ -13,9 +13,9 @@ go.work
 go.work.sum
 
 # Environment
-.env
-.env.local
-.env.*.local
+# .env
+# .env.local
+# .env.*.local
 
 # IDE
 .vscode/
