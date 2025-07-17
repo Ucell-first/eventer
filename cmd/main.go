@@ -23,17 +23,24 @@ func main() {
 	conn, err := clickhouse.ConnectionCH()
 	if err != nil {
 		logger.Error("Failed to connect to ClickHouse", "error", err)
-		log.Fatal(err)
+		log.Printf("fatal error: %v", err)
+		return
 	} else {
 		logger.Info("connected to clickhouse")
 	}
-	defer conn.Close()
+	defer func() {
+		if err := conn.Close(); err != nil {
+			log.Printf("error closing connection: %v", err)
+		}
+	}()
+
 	storage := db.NewStorage(conn, logger)
 
 	ctx := context.Background()
 	if err := storage.ClickHouseCrud().CreateTable(ctx); err != nil {
 		logger.Error("Failed to create table", "error", err)
-		log.Fatal(err)
+		log.Printf("fatal error: %v", err)
+		return
 	}
 
 	// Initialize Kafka consumer
@@ -41,9 +48,14 @@ func main() {
 	kafkaConsumer, err := consumer.NewKafkaConsumer(brokers, cfg.Kafka.Topic, cfg.Kafka.ConsumerGroup, logger)
 	if err != nil {
 		logger.Error("Failed to create Kafka consumer", "error", err)
-		log.Fatal(err)
+		log.Printf("fatal error: %v", err)
+		return
 	}
-	defer kafkaConsumer.Close()
+	defer func() {
+		if err := kafkaConsumer.Close(); err != nil {
+			log.Printf("error closing Kafka consumer: %v", err)
+		}
+	}()
 
 	// Initialize batch processor
 	batchProcessor := processor.NewBatchProcessor(

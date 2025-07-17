@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log-processor/model"
 	"log/slog"
-	"sync"
 
 	"github.com/IBM/sarama"
 )
@@ -18,14 +17,13 @@ type KafkaConsumer struct {
 	logger   *slog.Logger
 	batch    []model.LogEntry
 	batchCh  chan model.LogEntry
-	mu       sync.RWMutex
 }
 
 func NewKafkaConsumer(brokers []string, topic, group string, logger *slog.Logger) (*KafkaConsumer, error) {
 	config := sarama.NewConfig()
 	config.Consumer.Return.Errors = true
 	config.Consumer.Offsets.Initial = sarama.OffsetNewest
-	config.Consumer.Group.Rebalance.Strategy = sarama.BalanceStrategyRoundRobin
+	config.Consumer.Group.Rebalance.Strategy = sarama.NewBalanceStrategyRoundRobin()
 
 	consumer, err := sarama.NewConsumerGroup(brokers, group, config)
 	if err != nil {
