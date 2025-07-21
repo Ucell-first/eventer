@@ -41,7 +41,7 @@ docker-stop:
 	docker-compose down
 
 docker-logs:
-	docker-compose logs -f log-processor
+	docker compose logs -f kafka-service-log-processor-1
 
 
 send-test-logs:

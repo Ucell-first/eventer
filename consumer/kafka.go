@@ -15,7 +15,6 @@ type KafkaConsumer struct {
 	topic    string
 	ready    chan bool
 	logger   *slog.Logger
-	batch    []model.LogEntry
 	batchCh  chan model.LogEntry
 }
 
@@ -35,7 +34,6 @@ func NewKafkaConsumer(brokers []string, topic, group string, logger *slog.Logger
 		topic:    topic,
 		ready:    make(chan bool),
 		logger:   logger,
-		batch:    make([]model.LogEntry, 0),
 		batchCh:  make(chan model.LogEntry, 10000),
 	}, nil
 }
