@@ -2,9 +2,9 @@ package clickhouse
 
 import (
 	"context"
+	"eventer/db/repo"
+	"eventer/model"
 	"fmt"
-	"log-processor/db/repo"
-	"log-processor/model"
 	"log/slog"
 	"time"
 

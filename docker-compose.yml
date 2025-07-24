@@ -31,7 +31,7 @@ services:
     volumes:
       - clickhouse_data:/var/lib/clickhouse
 
-  log-processor:
+  eventer:
     build: .
     depends_on:
       - kafka
@@ -51,7 +51,7 @@ services:
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
     depends_on:
-      - log-processor
+      - eventer
 
 volumes:
   clickhouse_data:

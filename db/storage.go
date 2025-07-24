@@ -1,8 +1,8 @@
 package db
 
 import (
-	"log-processor/db/clickhouse"
-	"log-processor/db/repo"
+	"eventer/db/clickhouse"
+	"eventer/db/repo"
 	"log/slog"
 
 	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"

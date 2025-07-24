@@ -2,8 +2,8 @@ package clickhouse
 
 import (
 	"context"
+	"eventer/config"
 	"fmt"
-	"log-processor/config"
 	"time"
 
 	"github.com/ClickHouse/clickhouse-go/v2"

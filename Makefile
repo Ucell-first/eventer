@@ -41,7 +41,7 @@ docker-stop:
 	docker-compose down
 
 docker-logs:
-	docker compose logs -f kafka-service-log-processor-1
+	docker compose logs -f kafka-service-eventer-1
 
 
 send-test-logs:
@@ -74,4 +74,4 @@ start-all: docker-up
 	@echo "✅ All services started and test data sent!"
 
 enter-service:
-	docker exec -it kafka-service-log-processor-1 /bin/sh
+	docker exec -it kafka-service-eventer-1 /bin/sh

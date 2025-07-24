@@ -1,4 +1,4 @@
-# Log Processor
+# eventer
 A Go microservice that processes log messages from Kafka and stores them in ClickHouse.
 
 ## Quick Start

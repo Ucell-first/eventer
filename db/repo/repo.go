@@ -2,7 +2,7 @@ package repo
 
 import (
 	"context"
-	"log-processor/model"
+	"eventer/model"
 	"time"
 )
 

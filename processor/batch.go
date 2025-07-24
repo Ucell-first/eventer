@@ -2,8 +2,8 @@ package processor
 
 import (
 	"context"
-	"log-processor/db/repo"
-	"log-processor/model"
+	"eventer/db/repo"
+	"eventer/model"
 	"log/slog"
 	"sync"
 	"time"

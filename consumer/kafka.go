@@ -3,8 +3,8 @@ package consumer
 import (
 	"context"
 	"encoding/json"
+	"eventer/model"
 	"fmt"
-	"log-processor/model"
 	"log/slog"
 
 	"github.com/IBM/sarama"
