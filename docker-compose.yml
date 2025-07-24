@@ -42,6 +42,7 @@ services:
     environment:
       - BROKER_URL=kafka:9092
       - CLICKHOUSE_URL=clickhouse:9000
+      - CONSUMER_GROUP=eventer-logs
     restart: unless-stopped
 
   prometheus:

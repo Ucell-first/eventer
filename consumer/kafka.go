@@ -6,6 +6,7 @@ import (
 	"eventer/model"
 	"fmt"
 	"log/slog"
+	"time"
 
 	"github.com/IBM/sarama"
 )
@@ -24,6 +25,10 @@ func NewKafkaConsumer(brokers []string, topic, group string, logger *slog.Logger
 	config.Consumer.Offsets.Initial = sarama.OffsetNewest
 	config.Consumer.Group.Rebalance.Strategy = sarama.NewBalanceStrategyRoundRobin()
 
+	config.Consumer.Fetch.Min = 1024 * 1024          // 1MB minimum fetch size
+	config.Consumer.Fetch.Default = 10 * 1024 * 1024 // 10MB default fetch size
+	config.Consumer.MaxProcessingTime = 30 * time.Second
+
 	consumer, err := sarama.NewConsumerGroup(brokers, group, config)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create consumer group: %w", err)
@@ -34,11 +39,17 @@ func NewKafkaConsumer(brokers []string, topic, group string, logger *slog.Logger
 		topic:    topic,
 		ready:    make(chan bool),
 		logger:   logger,
-		batchCh:  make(chan model.LogEntry, 10000),
+		batchCh:  make(chan model.LogEntry, 50000),
 	}, nil
 }
 
 func (kc *KafkaConsumer) Start(ctx context.Context) error {
+	go func() {
+		for err := range kc.consumer.Errors() {
+			kc.logger.Error("Kafka consumer error", "error", err)
+		}
+	}()
+
 	go func() {
 		for {
 			if err := kc.consumer.Consume(ctx, []string{kc.topic}, kc); err != nil {

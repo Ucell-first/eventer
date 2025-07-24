@@ -87,7 +87,6 @@ func main() {
 	// Wait for interrupt signal
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
-
 	logger.Info("Log processor started successfully")
 
 	<-c
@@ -97,7 +96,7 @@ func main() {
 	cancel()
 
 	// Give some time for graceful shutdown
-	time.Sleep(2 * time.Second)
+	time.Sleep(5 * time.Second)
 
 	logger.Info("Shutdown complete")
 }

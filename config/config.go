@@ -66,7 +66,7 @@ func Load() *Config {
 		Kafka: KafkaConfig{
 			BrokerURL:     cast.ToString(coalesce("BROKER_URL", "localhost:9092")),
 			Topic:         cast.ToString(coalesce("TOPIC", "logs")),
-			ConsumerGroup: cast.ToString(coalesce("CONSUMER_GROUP", "log-processor")),
+			ConsumerGroup: cast.ToString(coalesce("CONSUMER_GROUP", "eventer-logs")),
 			Username:      cast.ToString(coalesce("KAFKA_USERNAME", "")),
 			Password:      cast.ToString(coalesce("KAFKA_PASSWORD", "")),
 		},
